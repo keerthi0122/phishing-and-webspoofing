@@ -1,31 +1,29 @@
 import streamlit as st
 import time
 
-# --- 1. Simulation Function (Replace this with your ML model later) ---
+# --- Dummy ML Function ---
 def is_phishing(url):
-    # This simulates a delay for "Checking..."
-    time.sleep(2) 
-    # Dummy logic: if url contains "google", it's safe; otherwise, alert.
-    if "google" in url.lower():
+    time.sleep(1) # Simulating processing time
+    # This logic is for testing; replace with your actual model logic
+    if "google.com" in url.lower() or "microsoft.com" in url.lower():
         return False
     return True
 
-# --- 2. UI Layout ---
 st.title("Phishing Detection App")
-
-url_input = st.text_input("Enter URL", placeholder="example.com")
+url_input = st.text_input("Enter URL")
 
 if st.button("Check"):
     if url_input:
-        # Show a status message while processing
-        with st.status("Checking URL...", expanded=True) as status:
+        with st.spinner('Analyzing URL...'):
             result = is_phishing(url_input)
             
+            # Creating a clean container for the result
+            st.write("---")
             if result:
-                st.error(f"⚠️ ALERT: {url_input} is likely a PHISHING site!")
+                st.error("### 🚨 Phishing Attack Detected: YES")
+                st.info("This URL matches patterns found in malicious sites.")
             else:
-                st.success(f"✅ SUCCESS: {url_input} appears to be SAFE.")
-            
-            status.update(label="Check Complete!", state="complete", expanded=False)
+                st.success("### ✅ Phishing Attack Detected: NO")
+                st.info("This URL appears to be safe.")
     else:
         st.warning("Please enter a URL first.")

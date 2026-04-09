@@ -1,54 +1,48 @@
 import streamlit as st
 import time
 
-# Initialize session state for login tracking
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
-    # --- PAGE ROUTING ---
-if st.session_state.logged_in:
-    # --- MAIN PHISHING DETECTION PAGE ---
-    st.title("Phishing Detection App")
+# --- LOGIC FUNCTION ---
+def perform_detection(url):
+    # 1. Clean the URL for comparison (removes https, www, etc.)
+    clean_url = url.lower().replace("https://", "").replace("http://", "").replace("www.", "").split('/')[0]
     
-    # Logout option
-    if st.sidebar.button("Logout"):
-        st.session_state.logged_in = False
-        st.rerun()
-
-    url_input = st.text_input("Enter URL", placeholder="aceexam.in")
+    # 2. Define your "Official" verified websites
+    # Add any website here that you want to be marked as "Safe"
+    official_sites = [
+        "google.com", 
+        "microsoft.com", 
+        "aceexam.in",    # The official site in your screenshots
+        "github.com",
+        "facebook.com"
+    ]
     
-    if st.button("Check"):
-        if url_input:
-            with st.status("Checking URL...", expanded=True) as status:
-                time.sleep(2) # Simulate processing
-                # Example logic: replace with your ML model
-                if "google" in url_input.lower() or "aceexam.in" in url_input.lower():
-                    st.success(f"✅ Phishing Attack Not Found for {url_input}")
-                else:
-                    st.error(f"🚨 Phishing Attack Found for {url_input}")
-                status.update(label="Check Complete!", state="complete")
+    # 3. Check against the list
+    if clean_url in official_sites:
+        return "SAFE"
+    else:
+        return "PHISHING"
 
-else:
-    # --- LOGIN & REGISTER PAGES ---
-    # (Insert your Title, Nav-bar, and Banner code here)
-    
-    page = st.radio("Navigation", ["Login", "Register"], horizontal=True)
+# --- STREAMLIT UI ---
+st.title("Phishing Detection App")
 
-    if page == "Login":
-        st.markdown('<p style="color:red; font-size:24px;">Login Using Your Account:</p>', unsafe_allow_html=True)
-        with st.form("login_form"):
-            user = st.text_input("User Name")
-            pw = st.text_input("Password", type="password")
-            if st.form_submit_button("Login"):
-                if user == "keerthi": # Add your actual validation here
-                    st.session_state.logged_in = True
-                    st.success("Login Successful!")
-                    time.sleep(1)
-                    st.rerun() # This triggers the switch to the Detection Page
-                else:
-                    st.error("Invalid credentials")
+url_to_check = st.text_input("Enter URL:", placeholder="e.g., google.com or fake-link.net")
 
-    elif page == "Register":
-        # Insert your two-column registration form here
-        st.info("Registration Page Content")
+if st.button("Check"):
+    if url_to_check:
+        with st.spinner("Analyzing website patterns..."):
+            time.sleep(1.5) # Simulating ML processing time
+            status = perform_detection(url_to_check)
+            
+            st.write("---")
+            if status == "SAFE":
+                # Matches your requirement for "Phishing attack not found"
+                st.success("### ✅ Status: Phishing Attack Not Found")
+                st.info(f"The domain **{url_to_check}** is verified as an Official Website.")
+            else:
+                # Matches your requirement for "Phishing attack found"
+                st.error("### 🚨 Status: Phishing Attack Found!")
+                st.warning(f"The website **{url_to_check}** is flagged as a Fake/Malicious site.")
+    else:
+        st.warning("Please enter a URL first.")
 
  
